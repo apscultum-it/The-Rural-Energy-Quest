@@ -3,820 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Rural Energy Quest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>The Rural Energy Quest — Riverstone Valley</title>
+<meta name="description" content="A story-driven rural energy literacy game inspired by public Erasmus+ educational resources.">
 <style>
-  :root{
-    --parchment:#F5EAD2;
-    --parchment-deep:#EADBB6;
-    --ink:#22301F;
-    --ink-soft:#43543c;
-    --forest:#1E3A2B;
-    --forest-2:#2E5B3E;
-    --leaf:#5C8A3A;
-    --wheat:#E3A52A;
-    --wheat-deep:#C2811A;
-    --sky-day-1:#9CC9E8;
-    --sky-day-2:#CDE7D4;
-    --terra:#C7522A;
-    --correct:#2E7D4F;
-    --correct-bg:#DDF0E2;
-    --wrong:#B53A22;
-    --wrong-bg:#F6E0D6;
-    --shadow:0 18px 40px -18px rgba(30,58,43,.55);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    font-family:'Outfit',sans-serif;
-    color:var(--ink);
-    background:var(--forest);
-    line-height:1.55;
-    overflow-x:hidden;
-  }
-  /* ---------- Scene / atmospheric background ---------- */
-  .stage{
-    min-height:100vh;
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:24px 16px 60px;
-    transition:background 1.2s ease;
-    background:
-      radial-gradient(120% 80% at 50% 0%, var(--sky-day-1) 0%, var(--sky-day-2) 45%, #EAF2DD 70%, var(--parchment) 100%);
-  }
-  .stage[data-zone="home"]{
-    background:radial-gradient(130% 90% at 50% 0%, #F4C77A 0%, #F2A65A 28%, #E9C9A0 55%, var(--parchment) 82%);
-  }
-  .stage[data-zone="farm"]{
-    background:radial-gradient(130% 90% at 50% 0%, #9CC9E8 0%, #BFE0CE 42%, #E6F0D6 70%, var(--parchment) 100%);
-  }
-  .stage[data-zone="community"]{
-    background:radial-gradient(130% 90% at 50% 0%, #F6D17A 0%, #F0B65C 30%, #E7CFA2 58%, var(--parchment) 86%);
-  }
-  /* sun */
-  .sun{
-    position:absolute;top:42px;right:8%;width:96px;height:96px;border-radius:50%;
-    background:radial-gradient(circle at 38% 35%, #FFF3C4, #FFD24A 60%, #F4A92B 100%);
-    box-shadow:0 0 60px 14px rgba(255,200,70,.5);
-    animation:floaty 8s ease-in-out infinite;
-    z-index:0;
-  }
-  @keyframes floaty{50%{transform:translateY(-12px)}}
-  /* rolling hills + farm scenery as fixed footer artwork */
-  .scenery{
-    position:fixed;left:0;right:0;bottom:0;width:100%;height:230px;
-    z-index:0;pointer-events:none;
-  }
-  .scenery svg{width:100%;height:100%;display:block}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .blade-group{transform-origin:center;animation:spin 7s linear infinite}
-  .blade-group.slow{animation-duration:11s}
-
-  /* ---------- Layout shell ---------- */
-  .shell{
-    position:relative;z-index:2;width:100%;max-width:780px;margin-top:8px;
-  }
-  .brandbar{
-    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
-    margin-bottom:18px;
-  }
-  .pill{
-    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.04em;
-    background:rgba(34,48,31,.86);color:#F5EAD2;padding:6px 12px;border-radius:999px;
-    text-decoration:none;display:inline-flex;align-items:center;gap:6px;
-    border:1px solid rgba(255,255,255,.12);transition:transform .15s,background .15s;
-  }
-  .pill:hover{transform:translateY(-2px);background:var(--forest-2)}
-  .pill .dot{width:7px;height:7px;border-radius:50%}
-  .dot.e4f{background:var(--wheat)}
-  .dot.elit{background:#6FB3E0}
-
-  .card{
-    background:var(--parchment);
-    border:1px solid rgba(34,48,31,.14);
-    border-radius:22px;
-    box-shadow:var(--shadow);
-    padding:30px 30px 26px;
-    position:relative;
-    overflow:hidden;
-  }
-  .card::before{
-    content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
-    background-image:radial-gradient(rgba(120,100,60,.10) 1px,transparent 1.4px);
-    background-size:14px 14px;
-  }
-  .card > *{position:relative;z-index:1}
-
-  /* ---------- Title screen ---------- */
-  .eyebrow{
-    font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.22em;
-    font-size:12px;color:var(--wheat-deep);font-weight:700;
-  }
-  h1{
-    font-family:'Fraunces',serif;font-weight:900;line-height:.96;
-    font-size:clamp(38px,8vw,68px);color:var(--forest);margin:8px 0 4px;
-    letter-spacing:-.01em;
-  }
-  h1 em{font-style:italic;color:var(--terra)}
-  .subtitle{
-    font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-    font-size:clamp(17px,3.4vw,21px);color:var(--ink-soft);max-width:54ch;margin:4px 0 18px;
-  }
-  .lede{font-size:16px;color:var(--ink-soft);max-width:60ch;margin-bottom:18px}
-  .lede strong{color:var(--forest)}
-
-  .merge{
-    display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;
-    margin:6px 0 22px;
-  }
-  .source-chip{
-    border-radius:16px;padding:14px 16px;border:1px solid rgba(34,48,31,.16);
-  }
-  .source-chip.e4f{background:linear-gradient(135deg,#FBEFCF,#F3DDA1)}
-  .source-chip.elit{background:linear-gradient(135deg,#E2F0FA,#CBE3F4)}
-  .source-chip h3{font-family:'Fraunces',serif;font-size:18px;color:var(--forest);margin-bottom:2px}
-  .source-chip p{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
-  .source-chip .ref{font-family:'Space Mono',monospace;font-size:10px;color:var(--wheat-deep);margin-top:6px;display:block;word-break:break-word}
-  .plus{
-    display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;
-    font-weight:900;font-size:30px;color:var(--terra);
-  }
-
-  .btn{
-    font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;cursor:pointer;
-    border:none;border-radius:14px;padding:15px 26px;color:#FBF4E2;
-    background:linear-gradient(180deg,var(--leaf),var(--forest-2));
-    box-shadow:0 10px 22px -10px rgba(30,58,43,.7),inset 0 1px 0 rgba(255,255,255,.25);
-    transition:transform .14s,filter .14s;letter-spacing:.01em;
-  }
-  .btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
-  .btn:active{transform:translateY(0)}
-  .btn.ghost{background:transparent;color:var(--forest);border:2px solid var(--forest)}
-  .btn.gold{background:linear-gradient(180deg,#F0BD4C,var(--wheat-deep));color:#3a2a06}
-  .btnrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px}
-  .hint{font-size:13px;color:var(--ink-soft)}
-
-  /* ---------- HUD ---------- */
-  .hud{
-    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;
-  }
-  .stat{
-    background:rgba(34,48,31,.9);color:#F5EAD2;border-radius:14px;padding:8px 14px;
-    min-width:96px;text-align:center;border:1px solid rgba(255,255,255,.12);
-  }
-  .stat .k{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;opacity:.8;text-transform:uppercase}
-  .stat .v{font-family:'Fraunces',serif;font-weight:900;font-size:22px;line-height:1}
-  .stat .v small{font-size:12px;font-weight:600}
-
-  .progress-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-  .progress{flex:1;height:12px;background:rgba(34,48,31,.16);border-radius:999px;overflow:hidden;border:1px solid rgba(34,48,31,.18)}
-  .progress > i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--wheat),var(--leaf));transition:width .5s ease}
-  .qcount{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);white-space:nowrap}
-
-  /* ---------- Question card ---------- */
-  .zone-tag{
-    display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;
-    font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
-    padding:5px 12px;border-radius:999px;margin-bottom:14px;
-  }
-  .zone-tag.home{background:#F6E2C5;color:#9A5A1E}
-  .zone-tag.farm{background:#D6EAD9;color:#2E5B3E}
-  .zone-tag.community{background:#F4E0B6;color:#9A6A12}
-  .scenario{font-size:14px;color:var(--ink-soft);font-style:italic;margin-bottom:8px}
-  .question{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(20px,3.6vw,26px);color:var(--ink);margin-bottom:18px;line-height:1.2}
-
-  .options{display:flex;flex-direction:column;gap:11px}
-  .opt{
-    text-align:left;cursor:pointer;font-family:'Outfit',sans-serif;font-size:15.5px;
-    color:var(--ink);background:#FBF4E2;border:2px solid rgba(34,48,31,.18);
-    border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
-    transition:border-color .14s,background .14s,transform .1s;
-  }
-  .opt:hover:not(.locked){border-color:var(--leaf);background:#fffaf0;transform:translateX(3px)}
-  .opt .mark{
-    flex:none;width:26px;height:26px;border-radius:8px;background:var(--forest);color:#F5EAD2;
-    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;
-    display:flex;align-items:center;justify-content:center;margin-top:1px;
-  }
-  .opt.correct{background:var(--correct-bg);border-color:var(--correct)}
-  .opt.correct .mark{background:var(--correct)}
-  .opt.wrong{background:var(--wrong-bg);border-color:var(--wrong)}
-  .opt.wrong .mark{background:var(--wrong)}
-  .opt.locked{cursor:default}
-  .opt.dim{opacity:.55}
-
-  .feedback{
-    margin-top:16px;border-radius:14px;padding:15px 16px;border-left:6px solid var(--leaf);
-    background:#FBF4E2;display:none;
-  }
-  .feedback.show{display:block;animation:pop .35s ease}
-  @keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .feedback.ok{border-left-color:var(--correct);background:var(--correct-bg)}
-  .feedback.no{border-left-color:var(--wrong);background:var(--wrong-bg)}
-  .feedback .head{font-family:'Fraunces',serif;font-weight:900;font-size:17px;margin-bottom:4px}
-  .feedback.ok .head{color:var(--correct)}
-  .feedback.no .head{color:var(--wrong)}
-  .feedback p{font-size:14.5px;color:var(--ink);margin-bottom:8px}
-  .feedback .src{
-    font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);
-    display:inline-flex;align-items:center;gap:6px;
-  }
-  .feedback .src b{color:var(--wheat-deep)}
-  .feedback .nextrow{margin-top:12px;display:flex;justify-content:flex-end}
-
-  /* ---------- Result ---------- */
-  .result-badge{
-    width:118px;height:118px;border-radius:50%;margin:0 auto 12px;
-    display:flex;align-items:center;justify-content:center;font-size:54px;
-    background:radial-gradient(circle at 38% 32%,#FFF3C4,#F0BD4C 65%,var(--wheat-deep));
-    box-shadow:0 12px 30px -10px rgba(194,129,26,.7);
-  }
-  .result h2{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(26px,5vw,40px);text-align:center;color:var(--forest);line-height:1}
-  .result .rank{text-align:center;font-family:'Fraunces',serif;font-style:italic;color:var(--terra);font-size:20px;margin:4px 0 14px}
-  .result .summary{text-align:center;color:var(--ink-soft);max-width:52ch;margin:0 auto 18px;font-size:15.5px}
-  .finalstats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
-  .fstat{background:#FBF4E2;border:1px solid rgba(34,48,31,.16);border-radius:16px;padding:14px 18px;text-align:center;min-width:120px}
-  .fstat .v{font-family:'Fraunces',serif;font-weight:900;font-size:26px;color:var(--forest);line-height:1}
-  .fstat .k{font-size:12px;color:var(--ink-soft);margin-top:3px}
-
-  .sources{margin-top:18px;border-top:1px dashed rgba(34,48,31,.3);padding-top:16px}
-  .sources h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--wheat-deep);margin-bottom:10px}
-  .sources ul{list-style:none;display:grid;gap:8px}
-  .sources li{font-size:13px;line-height:1.4}
-  .sources a{color:var(--forest);font-weight:600;text-decoration:none;border-bottom:1.5px solid rgba(92,138,58,.5)}
-  .sources a:hover{color:var(--terra);border-color:var(--terra)}
-  .sources .tag{font-family:'Space Mono',monospace;font-size:10px;padding:1px 6px;border-radius:6px;margin-right:6px}
-  .tag.e4f{background:#F3DDA1;color:#7a5310}
-  .tag.elit{background:#CBE3F4;color:#1f5a85}
-  .tag.ext{background:#E0E0D2;color:#555}
-
-  .footnote{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:26px;line-height:1.5;position:relative;z-index:2;max-width:680px}
-  .footnote a{color:var(--forest);font-weight:600;text-decoration:underline}
-  .eu{display:inline-block;background:#003399;color:#FFD617;font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:5px;margin:0 3px}
-
-  .hidden{display:none!important}
-  @media(max-width:520px){
-    .card{padding:24px 20px}
-    .merge{grid-template-columns:1fr}
-    .plus{transform:rotate(90deg)}
-    .sun{width:70px;height:70px;right:6%}
-  }
+:root{--cream:#f5ead5;--paper:#fff9ec;--ink:#17261d;--muted:#536356;--forest:#173b2c;--forest2:#285e43;--leaf:#65a044;--gold:#e7aa36;--rust:#ae4f32;--blue:#417ea1;--ok:#26784c;--bad:#ae382d;--shadow:0 22px 55px rgba(0,0,0,.24)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:#10251b;color:var(--ink)}body{overflow-x:hidden}button,a{font:inherit}.hidden{display:none!important}
+.stage{min-height:100vh;background:#142a20 center/cover fixed no-repeat;position:relative;padding:18px 14px 40px;transition:background-image .45s ease}.stage:before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(4,16,12,.54),rgba(8,22,17,.72));pointer-events:none}.stage:after{content:"";position:fixed;inset:0;background:radial-gradient(circle at top,rgba(255,210,120,.13),transparent 55%);pointer-events:none}
+.shell{position:relative;z-index:2;max-width:1040px;margin:0 auto}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.brand{font-weight:900;letter-spacing:.08em;color:#fff;text-transform:uppercase;font-size:13px}.links{display:flex;gap:7px;flex-wrap:wrap}.pill{display:inline-flex;gap:6px;align-items:center;text-decoration:none;border:1px solid rgba(255,255,255,.22);background:rgba(11,34,25,.82);color:#fff;padding:7px 10px;border-radius:999px;font-size:11px}.pill:hover{background:rgba(40,94,67,.94)}
+.panel{background:rgba(255,249,236,.97);border:1px solid rgba(255,255,255,.35);border-radius:24px;box-shadow:var(--shadow);overflow:hidden}.pad{padding:28px}.hero{display:grid;grid-template-columns:1.1fr .9fr;min-height:520px}.hero-text{padding:34px}.hero-image{background:center/cover no-repeat;min-height:320px;position:relative}.hero-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,249,236,.1),transparent)}.eyebrow,.mono{text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:900;color:var(--rust)}h1{font-family:Georgia,serif;font-size:clamp(44px,7vw,78px);line-height:.95;margin:10px 0 12px;color:var(--forest)}h1 em{display:block;color:var(--rust)}h2,h3{font-family:Georgia,serif;color:var(--forest)}.sub{font-family:Georgia,serif;font-size:21px;font-style:italic;color:#4f5b51;line-height:1.35}.copy{color:var(--muted);line-height:1.62}.notice{padding:12px 14px;border-left:5px solid var(--gold);background:#f8edd0;border-radius:10px;font-size:13px;color:#5d4a1d;margin:15px 0}.btn{border:0;cursor:pointer;border-radius:14px;padding:14px 19px;font-weight:900;background:linear-gradient(180deg,#6aa74a,#275e43);color:white;box-shadow:0 10px 22px rgba(23,59,44,.23);transition:.15s}.btn:hover{transform:translateY(-2px);filter:brightness(1.05)}.btn.gold{background:linear-gradient(180deg,#f0bd51,#c7861f);color:#342304}.btn.ghost{background:transparent;color:var(--forest);border:2px solid var(--forest);box-shadow:none}.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}.small{font-size:12px;color:var(--muted)}
+.route{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:16px 0}.route-node{background:#fff4dc;border:1px solid #e6d2aa;border-radius:14px;padding:11px;font-size:12px;color:#6b624e;transition:.2s}.route-node b{display:block;color:var(--forest);font-size:13px}.route-node.active{background:#e2f0dd;border-color:#6aa74a;transform:translateY(-2px)}.route-node.done{background:#edf6e8;border-color:#93b77c}.route-node.locked{opacity:.55}
+.chapter-cover{position:relative;min-height:440px;background:center/cover no-repeat;overflow:hidden;display:flex;align-items:stretch}.chapter-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,26,19,.94) 0%,rgba(9,26,19,.79) 48%,rgba(9,26,19,.34) 100%)}.chapter-content{position:relative;z-index:2;padding:28px 32px 30px;max-width:760px;color:white;display:flex;flex-direction:column;justify-content:flex-start}.chapter-content h2{color:white;font-size:clamp(34px,5.1vw,58px);line-height:1.02;margin:8px 0 10px}.chapter-content p{line-height:1.48;margin:6px 0}.chapter-content .btnrow{margin-top:16px}.photo-credit{position:absolute;z-index:3;right:10px;bottom:8px;font-size:10px;background:rgba(0,0,0,.64);padding:5px 8px;border-radius:7px;color:#fff}.photo-credit a{color:#fff}
+.hud{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.stat{background:rgba(13,42,30,.93);color:#fff;padding:9px 10px;border-radius:13px;text-align:center;border:1px solid rgba(255,255,255,.14)}.stat span{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.75}.stat b{font-family:Georgia,serif;font-size:21px}.progress{height:11px;background:rgba(255,255,255,.24);border-radius:999px;overflow:hidden;margin:0 0 13px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--leaf));width:0;transition:.3s}.game-grid{display:grid;grid-template-columns:1fr 290px;gap:13px}.question-card{padding:24px}.side{padding:16px}.side h3{margin:0 0 8px}.missionline{font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--rust)}.scene{font-style:italic;color:#667064;margin:8px 0}.question{font-family:Georgia,serif;font-size:25px;line-height:1.18;color:var(--ink);margin:8px 0 18px}.options{display:grid;gap:10px}.opt{cursor:pointer;text-align:left;border:2px solid #e4d8c2;background:#fffdf8;padding:13px;border-radius:13px;display:flex;gap:10px;align-items:flex-start;color:#26362c;transition:.14s}.opt:hover:not(.locked){border-color:#6aa74a;transform:translateX(3px)}.mark{width:25px;height:25px;flex:none;display:grid;place-items:center;border-radius:8px;background:var(--forest);color:#fff;font-weight:900;font-size:12px}.opt.correct{background:#e0f1e3;border-color:var(--ok)}.opt.correct .mark{background:var(--ok)}.opt.wrong{background:#f6dfdb;border-color:var(--bad)}.opt.wrong .mark{background:var(--bad)}.opt.dim{opacity:.55}.opt.locked{cursor:default}.feedback{display:none;margin-top:14px;padding:14px;border-radius:12px;border-left:6px solid var(--gold);background:#fff6df}.feedback.show{display:block}.feedback.ok{border-color:var(--ok);background:#e3f1e5}.feedback.no{border-color:var(--bad);background:#f8e4df}.feedback b{color:var(--forest)}.source{display:inline-flex;margin-top:8px;gap:6px;align-items:center;font-size:11px;text-decoration:none;color:#486151;font-weight:800}.source:hover{text-decoration:underline}.next{display:flex;justify-content:flex-end;margin-top:12px}.log{display:grid;gap:8px}.log-item{padding:9px;border-radius:10px;background:#fff8e9;border:1px solid #eddfc4;font-size:12px;color:#5c665c}.log-item strong{color:var(--forest)}.chapter-mini{padding:9px;border-radius:10px;background:#eaf2e6;border:1px solid #cadbc5;font-size:12px}.creditline{font-size:11px;color:#e8eadf;text-align:center;margin-top:13px}.creditline a{color:#fff}
+.result{padding:28px;text-align:center}.badge{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;margin:0 auto 11px;font-size:54px;background:radial-gradient(circle,#fff1ad,#e3a52a);box-shadow:0 13px 30px rgba(0,0,0,.16)}.result h2{font-size:43px;margin:8px 0}.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.resultbox{padding:14px;background:#fff8e9;border:1px solid #ead8b7;border-radius:14px}.resultbox b{font-family:Georgia,serif;font-size:28px;color:var(--forest);display:block}.sources{margin-top:22px;text-align:left;border-top:1px dashed #cfbea0;padding-top:14px}.sources ul{padding-left:18px}.sources li{margin:6px 0;font-size:13px}.sources a{color:#22563d}.footer{color:#dae6de;font-size:11px;text-align:center;max-width:920px;margin:14px auto 0;line-height:1.5}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.hero-image{min-height:220px;order:-1}.game-grid{grid-template-columns:1fr}.side{display:none}.hud{grid-template-columns:repeat(2,1fr)}.stat:last-child{grid-column:1/-1}.route{grid-template-columns:repeat(2,1fr)}.result-grid{grid-template-columns:repeat(2,1fr)}.chapter-cover{min-height:0}.chapter-content{padding:24px 20px 28px;max-width:100%}.chapter-content h2{font-size:clamp(32px,9vw,48px)}}@media(max-height:650px) and (min-width:821px){.stage{padding-top:10px}.topbar{margin-bottom:8px}.chapter-cover{min-height:0}.chapter-content{padding:20px 28px 22px;max-width:820px}.chapter-content h2{font-size:clamp(31px,4.5vw,50px);margin:5px 0 7px}.chapter-content p{line-height:1.36;margin:4px 0}.chapter-content .btnrow{margin-top:12px}.footer{margin-top:8px}.creditline{margin-top:8px}}
 </style>
 </head>
 <body>
-<div class="stage" id="stage" data-zone="title">
-  <div class="sun"></div>
-
-  <div class="shell">
-    <div class="brandbar">
-      <a class="pill" href="https://energy4farming.uni-eszterhazy.hu/en" target="_blank" rel="noopener"><span class="dot e4f"></span>Energy4Farming</a>
-      <a class="pill" href="https://www.elitadults.eu" target="_blank" rel="noopener"><span class="dot elit"></span>E‑Lit Adults</a>
+<div class="stage" id="stage">
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">Riverstone Valley · Rural Energy Mission</div>
+    <div class="links">
+      <a class="pill" target="_blank" rel="noopener" href="https://energy4farming.uni-eszterhazy.hu/en">🌾 Energy4Farming</a>
+      <a class="pill" target="_blank" rel="noopener" href="https://www.elitadults.eu/">⚡ E-Lit Adults</a>
     </div>
+  </div>
 
-    <!-- ===== TITLE SCREEN ===== -->
-    <div id="screen-title">
-      <div class="card">
-        <span class="eyebrow">An energy‑literacy game for the countryside</span>
-        <h1>The Rural<br>Energy <em>Quest</em></h1>
-        <p class="subtitle">Run a farmhouse through one year. Every choice affects your energy use, budget and climate impact.</p>
-        <p class="lede">This game is built from <strong>two European Erasmus+ projects</strong> and blends their two worlds: saving energy <strong>at home</strong> and producing clean energy <strong>on the farm</strong>.</p>
-
-        <div class="merge">
-          <div class="source-chip e4f">
-            <h3>Energy4Farming</h3>
-            <p>Renewable energy &amp; efficiency for agriculture: solar, wind, geothermal, biomass.</p>
-            <span class="ref">VET · 2020‑1‑ES01‑KA202‑082440</span>
-          </div>
-          <div class="plus">+</div>
-          <div class="source-chip elit">
-            <h3>E‑Lit Adults</h3>
-            <p>Energy literacy for adults to fight energy poverty in their homes.</p>
-            <span class="ref">ADU · 2023‑1‑LT01‑KA220‑ADU‑000154544</span>
-          </div>
-        </div>
-
-        <div class="btnrow">
-          <button class="btn" onclick="startGame()">Start the Quest →</button>
-          <span class="hint">12 decisions · 3 zones · ~5 min</span>
-        </div>
-      </div>
+  <section id="titleScreen" class="panel hero">
+    <div class="hero-text">
+      <div class="eyebrow">A four-season rural energy adventure</div>
+      <h1>The Rural <em>Energy Quest</em></h1>
+      <p class="sub">One valley. Four seasons. Forty-eight decisions that connect homes, farms, residues and community power.</p>
+      <p class="copy">Riverstone Valley has one year to reduce waste, protect vulnerable residents and build a credible clean-energy plan. You have been appointed the valley's energy steward. Your decisions will affect the budget, resilience, climate impact and community trust.</p>
+      <div class="notice"><b>Independent educational prototype.</b> Inspired by publicly accessible resources from Energy4Farming and E-Lit Adults, with additional official EU, Eurostat and IEA sources. It is not an official deliverable of either project.</div>
+      <div class="route" id="titleRoute"></div>
+      <div class="btnrow"><button class="btn" onclick="beginMission()">Begin the year →</button><span class="small">48 decisions · 4 environments · story briefings · source-linked feedback</span></div>
     </div>
+    <div class="hero-image" style="background-image:url('https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=1400&q=85')"></div>
+  </section>
 
-    <!-- ===== GAME SCREEN ===== -->
-    <div id="screen-game" class="hidden">
-      <div class="hud">
-        <div class="stat"><div class="k">Savings score</div><div class="v" id="hud-money">0</div></div>
-        <div class="stat"><div class="k">Climate score</div><div class="v" id="hud-co2">0</div></div>
-        <div class="stat"><div class="k">Literacy</div><div class="v" id="hud-score">0</div></div>
-      </div>
-      <div class="progress-wrap">
-        <div class="progress"><i id="bar"></i></div>
-        <span class="qcount" id="qcount">01 / 12</span>
-      </div>
+  <section id="chapterScreen" class="panel hidden"></section>
 
-      <div class="card">
-        <span class="zone-tag" id="zoneTag">Zone</span>
-        <p class="scenario" id="scenario"></p>
-        <h2 class="question" id="question"></h2>
+  <section id="gameScreen" class="hidden">
+    <div class="hud">
+      <div class="stat"><span>Budget</span><b id="budgetStat">1000</b></div>
+      <div class="stat"><span>Resilience</span><b id="resStat">0</b></div>
+      <div class="stat"><span>Climate</span><b id="climateStat">0</b></div>
+      <div class="stat"><span>Trust</span><b id="trustStat">0</b></div>
+      <div class="stat"><span>Literacy</span><b id="scoreStat">0/48</b></div>
+    </div>
+    <div class="progress"><i id="progressBar"></i></div>
+    <div class="route" id="gameRoute"></div>
+    <div class="game-grid">
+      <div class="panel question-card">
+        <div class="missionline" id="missionLine"></div>
+        <p class="scene" id="scene"></p>
+        <div class="question" id="question"></div>
         <div class="options" id="options"></div>
-
         <div class="feedback" id="feedback">
-          <div class="head" id="fbHead"></div>
-          <p id="fbBody"></p>
-          <span class="src" id="fbSrc"></span>
-          <div class="nextrow"><button class="btn gold" id="nextBtn" onclick="nextQuestion()">Next →</button></div>
+          <div id="feedbackText"></div>
+          <a class="source" id="sourceLink" target="_blank" rel="noopener"></a>
+          <div class="next"><button class="btn gold" onclick="nextStep()" id="nextBtn">Next decision →</button></div>
         </div>
       </div>
+      <aside class="panel side">
+        <h3>Valley log</h3>
+        <div class="log" id="log"></div>
+      </aside>
     </div>
+  </section>
 
-    <!-- ===== RESULT SCREEN ===== -->
-    <div id="screen-result" class="hidden">
-      <div class="card result">
-        <div class="result-badge" id="badge">🌱</div>
-        <h2 id="resTitle">Quest Complete</h2>
-        <div class="rank" id="resRank"></div>
-        <p class="summary" id="resSummary"></p>
-
-        <div class="finalstats">
-          <div class="fstat"><div class="v" id="fMoney">0</div><div class="k">savings points unlocked</div></div>
-          <div class="fstat"><div class="v" id="fCo2">0</div><div class="k">climate-impact points</div></div>
-          <div class="fstat"><div class="v" id="fScore">0/12</div><div class="k">correct answers</div></div>
-        </div>
-
-        <div class="btnrow" style="justify-content:center">
-          <button class="btn" onclick="restart()">↻ Play again</button>
-        </div>
-
-        <div class="sources">
-          <h4>Sources &amp; further reading</h4>
-          <ul>
-            <li><span class="tag e4f">E4F</span><a href="https://energy4farming.uni-eszterhazy.hu/en" target="_blank" rel="noopener">Energy4Farming — Energy for Farming</a> · Erasmus+ 2020‑1‑ES01‑KA202‑082440 (solar, wind, geothermal &amp; biomass for farms)</li>
-            <li><span class="tag elit">E‑Lit</span><a href="https://www.elitadults.eu" target="_blank" rel="noopener">E‑Lit Adults — Energy Literacy for Adults</a> · Erasmus+ 2023‑1‑LT01‑KA220‑ADU‑000154544</li>
-            <li><span class="tag ext">EU</span><a href="https://commission.europa.eu/strategy-and-policy/priorities-2019-2024/european-green-deal_en" target="_blank" rel="noopener">European Commission — The European Green Deal</a> (energy efficiency &amp; literacy)</li>
-            <li><span class="tag ext">DATA</span><a href="https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20260202-2" target="_blank" rel="noopener">Eurostat — Inability to keep home adequately warm (energy poverty)</a></li>
-            <li><span class="tag ext">IEA</span><a href="https://www.iea.org/topics/energy-efficiency" target="_blank" rel="noopener">International Energy Agency — Energy Efficiency</a></li>
-            <li><span class="tag ext">EU</span><a href="https://energy.ec.europa.eu/topics/renewable-energy/solar-energy_en" target="_blank" rel="noopener">European Commission — Solar energy &amp; agrivoltaics</a></li>
-          </ul>
-        </div>
-      </div>
+  <section id="resultScreen" class="panel result hidden">
+    <div class="badge" id="badge">🏆</div>
+    <div class="eyebrow">Year-end assembly</div>
+    <h2 id="resultTitle">Rural Energy Champion</h2>
+    <p class="sub" id="resultSubtitle"></p>
+    <p class="copy" id="resultCopy"></p>
+    <div class="result-grid">
+      <div class="resultbox"><b id="resultBudget"></b><span>budget balance</span></div>
+      <div class="resultbox"><b id="resultRes"></b><span>resilience points</span></div>
+      <div class="resultbox"><b id="resultClimate"></b><span>climate points</span></div>
+      <div class="resultbox"><b id="resultTrust"></b><span>trust points</span></div>
     </div>
-  </div>
+    <div class="btnrow" style="justify-content:center"><button class="btn" onclick="restart()">↻ Start a new year</button><button class="btn ghost" onclick="window.print()">Print result</button></div>
+    <div class="sources"><h3>Sources and further reading</h3><ul id="sourceList"></ul></div>
+  </section>
 
-  <div class="footnote">
-    An educational mash‑up developed from the
-    <a href="https://energy4farming.uni-eszterhazy.hu/en" target="_blank" rel="noopener">Energy4Farming</a> and
-    <a href="https://www.elitadults.eu" target="_blank" rel="noopener">E‑Lit Adults</a> projects.<br>
-    Funded by the European Union. Views and opinions expressed are, however, those of the author(s) only and do not necessarily reflect those of the European Union. Neither the European Union nor the granting authority can be held responsible for them.
-  </div>
+  <div class="creditline" id="creditLine"></div>
+  <div class="footer">Educational mash-up developed as an independent prototype from publicly accessible resources. Funded-project names and links are included for educational attribution. Views expressed in this prototype are those of its author only.</div>
 </div>
-
-<!-- ===== Fixed rural scenery (SVG) ===== -->
-<div class="scenery" aria-hidden="true">
-  <svg viewBox="0 0 1200 230" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-    <!-- back hills -->
-    <path d="M0,150 C200,90 380,150 560,120 C760,86 980,150 1200,110 L1200,230 L0,230 Z" fill="#8FB36B" opacity=".55"/>
-    <!-- mid field -->
-    <path d="M0,180 C220,140 460,190 700,160 C920,134 1050,180 1200,160 L1200,230 L0,230 Z" fill="#6E9A47"/>
-    <!-- front field -->
-    <path d="M0,210 C300,185 700,220 1000,195 C1100,187 1160,200 1200,196 L1200,230 L0,230 Z" fill="#557A35"/>
-    <!-- furrow lines -->
-    <g stroke="#46672b" stroke-width="2" opacity=".5">
-      <path d="M40,228 C300,205 760,232 1180,206" fill="none"/>
-      <path d="M40,220 C320,200 740,222 1180,200" fill="none"/>
-    </g>
-
-    <!-- wind turbine left -->
-    <g transform="translate(150,70)">
-      <rect x="-3" y="0" width="6" height="120" fill="#F2ECDC"/>
-      <g class="blade-group" transform="translate(0,0)">
-        <g fill="#FBF6E8" stroke="#cbb98e" stroke-width="1">
-          <path d="M0,0 L6,-52 L-6,-52 Z"/>
-          <path d="M0,0 L45,26 L39,37 Z"/>
-          <path d="M0,0 L-45,26 L-39,37 Z"/>
-        </g>
-      </g>
-      <circle r="5" fill="#C2811A"/>
-    </g>
-
-    <!-- barn / farmhouse -->
-    <g transform="translate(520,96)">
-      <rect x="0" y="40" width="120" height="84" fill="#B6532F"/>
-      <rect x="0" y="40" width="120" height="84" fill="url(#plank)" opacity=".25"/>
-      <polygon points="-8,40 60,4 128,40" fill="#7E3A20"/>
-      <rect x="48" y="78" width="30" height="46" fill="#FBE9C4"/>
-      <rect x="14" y="60" width="20" height="20" fill="#FBE9C4"/>
-      <rect x="86" y="60" width="20" height="20" fill="#FBE9C4"/>
-      <!-- silo -->
-      <rect x="128" y="56" width="34" height="68" rx="4" fill="#D9CBA6"/>
-      <ellipse cx="145" cy="56" rx="17" ry="8" fill="#EFE3C2"/>
-    </g>
-
-    <!-- solar panels -->
-    <g transform="translate(740,150)">
-      <g transform="skewX(-18)">
-        <rect x="0" y="0" width="64" height="34" fill="#1F3A57" stroke="#0d2236" stroke-width="2"/>
-        <g stroke="#3f6f9c" stroke-width="1.4">
-          <line x1="16" y1="0" x2="16" y2="34"/><line x1="32" y1="0" x2="32" y2="34"/><line x1="48" y1="0" x2="48" y2="34"/>
-          <line x1="0" y1="11" x2="64" y2="11"/><line x1="0" y1="22" x2="64" y2="22"/>
-        </g>
-      </g>
-      <rect x="28" y="34" width="4" height="20" fill="#5a4a2a"/>
-    </g>
-    <g transform="translate(820,156)">
-      <g transform="skewX(-18)">
-        <rect x="0" y="0" width="64" height="34" fill="#1F3A57" stroke="#0d2236" stroke-width="2"/>
-        <g stroke="#3f6f9c" stroke-width="1.4">
-          <line x1="16" y1="0" x2="16" y2="34"/><line x1="32" y1="0" x2="32" y2="34"/><line x1="48" y1="0" x2="48" y2="34"/>
-          <line x1="0" y1="11" x2="64" y2="11"/><line x1="0" y1="22" x2="64" y2="22"/>
-        </g>
-      </g>
-      <rect x="28" y="34" width="4" height="20" fill="#5a4a2a"/>
-    </g>
-
-    <!-- small wind turbine right -->
-    <g transform="translate(1040,96)">
-      <rect x="-2.5" y="0" width="5" height="96" fill="#F2ECDC"/>
-      <g class="blade-group slow">
-        <g fill="#FBF6E8" stroke="#cbb98e" stroke-width="1">
-          <path d="M0,0 L5,-42 L-5,-42 Z"/>
-          <path d="M0,0 L36,21 L31,30 Z"/>
-          <path d="M0,0 L-36,21 L-31,30 Z"/>
-        </g>
-      </g>
-      <circle r="4" fill="#C2811A"/>
-    </g>
-
-    <!-- trees -->
-    <g transform="translate(330,120)">
-      <rect x="-4" y="40" width="8" height="40" fill="#5a3c1f"/>
-      <circle cx="0" cy="34" r="30" fill="#4f7a35"/>
-      <circle cx="-18" cy="44" r="20" fill="#5c8a3a"/>
-      <circle cx="18" cy="44" r="20" fill="#5c8a3a"/>
-    </g>
-
-    <defs>
-      <pattern id="plank" width="120" height="14" patternUnits="userSpaceOnUse">
-        <rect width="120" height="14" fill="none"/>
-        <line x1="0" y1="13" x2="120" y2="13" stroke="#000" stroke-width="1"/>
-      </pattern>
-    </defs>
-  </svg>
 </div>
-
 <script>
-/* ============================================================
-   THE RURAL ENERGY QUEST
-   Content sourced from:
-   - Energy4Farming (Erasmus+ 2020-1-ES01-KA202-082440)
-   - E-Lit Adults     (Erasmus+ 2023-1-LT01-KA220-ADU-000154544)
-   - plus EU / Eurostat / IEA references
-   ============================================================ */
-
-const QUESTIONS = [
-  /* ---------- ZONE 1: THE FARMHOUSE (E-Lit Adults) ---------- */
-  {
-    zone:"home", zoneLabel:"Zone 1 · The Farmhouse",
-    scenario:"Winter is coming to your rural home and the heating bills frighten you.",
-    q:"In old, poorly-insulated rural houses, what is the single biggest cause of high heating bills?",
-    options:[
-      {t:"Leaving a few lights on", correct:false},
-      {t:"Heat escaping through walls, roof and gaps (poor insulation)", correct:true},
-      {t:"Using the kettle too often", correct:false},
-      {t:"Watching too much television", correct:false}
-    ],
-    money:120, co2:90,
-    okHead:"Sealed and snug!",
-    expl:"Poor insulation and air leaks can drive heat loss in older rural buildings. Insulating walls and roofs and sealing draughts are usually among the highest-impact measures, while lighting and small appliances account for a much smaller share of heating-related consumption.",
-    src:"E‑Lit Adults consolidated report", srcType:"elit"
-  },
-  {
-    zone:"home", zoneLabel:"Zone 1 · The Farmhouse",
-    scenario:"You can afford only one cheap action before the cold sets in.",
-    q:"Which low-cost step cuts the most heating energy first?",
-    options:[
-      {t:"Repaint the front door", correct:false},
-      {t:"Draught-proof gaps and turn the thermostat down by 1 °C", correct:true},
-      {t:"Buy a bigger TV", correct:false},
-      {t:"Heat every room to 24 °C just in case", correct:false}
-    ],
-    money:80, co2:60,
-    okHead:"Smart and free-ish!",
-    expl:"Behaviour change is the cheapest win. Closing draughts and lowering the thermostat by just 1 °C noticeably cuts consumption. E‑Lit Adults stresses that there is a real gap between knowing and doing — small habits matter.",
-    src:"E‑Lit Adults · behaviour change (COM‑B)", srcType:"elit"
-  },
-  {
-    zone:"home", zoneLabel:"Zone 1 · The Farmhouse",
-    scenario:"A neighbour says energy poverty 'only happens in big cities'.",
-    q:"Across the EU, who is most affected by energy poverty?",
-    options:[
-      {t:"Only people without jobs in cities", correct:false},
-      {t:"Low-income, single-parent and elderly households", correct:true},
-      {t:"Mainly young tech workers", correct:false},
-      {t:"Nobody — it was solved years ago", correct:false}
-    ],
-    money:0, co2:0,
-    okHead:"Exactly right.",
-    expl:"In 2024, 9.2% of the EU population could not keep their home adequately warm. Energy poverty particularly affects vulnerable households, including people with limited incomes, and it is not confined to urban areas.",
-    src:"E‑Lit Adults · Eurostat 2024", srcType:"elit"
-  },
-  {
-    zone:"home", zoneLabel:"Zone 1 · The Farmhouse",
-    scenario:"You want to find exactly where your money is leaking.",
-    q:"What is the best way to discover where your home wastes energy?",
-    options:[
-      {t:"Guess and hope for the best", correct:false},
-      {t:"Do an energy audit / monitor your real consumption", correct:true},
-      {t:"Ask which neighbour has the highest bill", correct:false},
-      {t:"Switch everything off forever", correct:false}
-    ],
-    money:90, co2:70,
-    okHead:"Measure, then act.",
-    expl:"You cannot manage what you don't measure. An energy audit (or a simple consumption monitor) reveals the real weak spots so you can target insulation, heating and appliances — a core energy-literacy skill.",
-    src:"E‑Lit Adults · energy literacy outcomes", srcType:"elit"
-  },
-
-  /* ---------- ZONE 2: THE FIELDS & BARN (Energy4Farming) ---------- */
-  {
-    zone:"farm", zoneLabel:"Zone 2 · The Fields & Barn",
-    scenario:"You're rebuilding the old farmhouse porch and orienting new buildings.",
-    q:"Good passive solar design (south orientation, porch, shading) can cut winter heating fuel by roughly how much?",
-    options:[
-      {t:"About 1%", correct:false},
-      {t:"Up to about 30%", correct:true},
-      {t:"Exactly 100%", correct:false},
-      {t:"It increases bills", correct:false}
-    ],
-    money:160, co2:140,
-    okHead:"Free heat from the sun!",
-    expl:"Traditional farmhouses were already cleverly oriented: the porch let in winter sun and shaded the summer heat. Good passive solar design can save around 30% of winter heating fuel with no machinery at all.",
-    src:"Energy4Farming · passive solar energy", srcType:"e4f"
-  },
-  {
-    zone:"farm", zoneLabel:"Zone 2 · The Fields & Barn",
-    scenario:"Which way to tilt the new solar panels on the barn roof?",
-    q:"In the Northern hemisphere, solar panels should mainly face…",
-    options:[
-      {t:"North", correct:false},
-      {t:"South", correct:true},
-      {t:"Straight down", correct:false},
-      {t:"It makes no difference", correct:false}
-    ],
-    money:110, co2:120,
-    okHead:"Catch those rays!",
-    expl:"A southern orientation is essential to capture the most sunlight; the tilt angle depends on latitude and the season. Livestock-farm roofs and crop containers are ideal places for panels.",
-    src:"Energy4Farming · solar energy use", srcType:"e4f"
-  },
-  {
-    zone:"farm", zoneLabel:"Zone 2 · The Fields & Barn",
-    scenario:"You want a power supply that doesn't fail when one source drops.",
-    q:"Why pair wind turbines WITH solar panels in a hybrid farm system?",
-    options:[
-      {t:"They look nice together", correct:false},
-      {t:"They complement each other — sun by day/summer, wind by night/winter", correct:true},
-      {t:"Wind makes the sun shine", correct:false},
-      {t:"To use twice as much fuel", correct:false}
-    ],
-    money:150, co2:170,
-    okHead:"Power around the clock!",
-    expl:"Solar peaks in summer and daytime; wind is often strongest at night and in winter and spring. Combined in a hybrid station, they fill each other's gaps and make supply far more stable.",
-    src:"Energy4Farming · hybrid power stations", srcType:"e4f"
-  },
-  {
-    zone:"farm", zoneLabel:"Zone 2 · The Fields & Barn",
-    scenario:"Your greenhouses need steady heat right through the cold months.",
-    q:"Which renewable best provides continuous winter heat for greenhouses?",
-    options:[
-      {t:"Geothermal (thermal water wells)", correct:true},
-      {t:"A single solar lamp", correct:false},
-      {t:"Burning extra diesel", correct:false},
-      {t:"Hoping for a warm winter", correct:false}
-    ],
-    money:140, co2:160,
-    okHead:"Heat from deep down!",
-    expl:"Geothermal energy — hot water from wells near the facilities — can heat greenhouses and plastic tunnels effectively even in winter. In many systems, cooled water is reinjected into the underground reservoir to support sustainable operation and comply with applicable rules.",
-    src:"Energy4Farming · geothermal energy", srcType:"e4f"
-  },
-  {
-    zone:"farm", zoneLabel:"Zone 2 · The Fields & Barn",
-    scenario:"Your barn produces a lot of manure and crop residues.",
-    q:"These farm by-products can be turned into energy as…",
-    options:[
-      {t:"Nothing — they're just waste", correct:false},
-      {t:"Biogas and other forms of bioenergy", correct:true},
-      {t:"Gasoline for cars only", correct:false},
-      {t:"Nuclear fuel", correct:false}
-    ],
-    money:130, co2:150,
-    okHead:"Waste into watts!",
-    expl:"Farm by-products such as manure and suitable crop residues can become valuable energy resources. Depending on the feedstock and the technology used, they can support biogas production or other forms of bioenergy.",
-    src:"Energy4Farming · renewables in agriculture", srcType:"e4f"
-  },
-
-  /* ---------- ZONE 3: THE COMMUNITY (both projects) ---------- */
-  {
-    zone:"community", zoneLabel:"Zone 3 · The Village",
-    scenario:"Several rural neighbours want clean power but can't each afford a big system.",
-    q:"What is an 'energy community' / energy cooperative?",
-    options:[
-      {t:"A single company that owns all the power", correct:false},
-      {t:"People who jointly produce, share and manage renewable energy", correct:true},
-      {t:"A government tax on solar panels", correct:false},
-      {t:"A type of battery", correct:false}
-    ],
-    money:120, co2:130,
-    okHead:"Stronger together!",
-    expl:"Energy cooperatives and clusters let consumers, producers and 'prosumers' in an area pool resources, balance demand and share renewable energy — a model both projects highlight for rural places.",
-    src:"Energy4Farming + E‑Lit Adults", srcType:"both"
-  },
-  {
-    zone:"community", zoneLabel:"Zone 3 · The Village",
-    scenario:"You've learned the daily habits — but want lasting savings.",
-    q:"What does 'energy-related financial literacy' add to the picture?",
-    options:[
-      {t:"Knowing how to invest in efficient equipment, not just daily tips", correct:true},
-      {t:"Memorising your electricity password", correct:false},
-      {t:"Spending as much as possible", correct:false},
-      {t:"Ignoring grants and subsidies", correct:false}
-    ],
-    money:170, co2:90,
-    okHead:"Invest to save!",
-    expl:"Beyond switching off lights, E‑Lit Adults promotes a holistic 'energy-related financial literacy': understanding grants, subsidies and how investing in better equipment (insulation, efficient appliances, renewables) pays off over time.",
-    src:"E‑Lit Adults · financial literacy", srcType:"elit"
-  },
-  {
-    zone:"community", zoneLabel:"Zone 3 · The Village",
-    scenario:"At the town hall, someone asks which EU policy ties all this together.",
-    q:"Which EU framework drives energy efficiency, renewables and energy literacy?",
-    options:[
-      {t:"The European Green Deal", correct:true},
-      {t:"A ban on farming", correct:false},
-      {t:"A rule to use more fossil fuels", correct:false},
-      {t:"There is no EU policy", correct:false}
-    ],
-    money:110, co2:120,
-    okHead:"You know your policy!",
-    expl:"The European Green Deal promotes cleaner energy, more efficient buildings and greater use of renewable sources. Energy literacy helps households and communities participate more effectively in this transition.",
-    src:"European Commission · Green Deal", srcType:"ext"
-  }
-];
-
-/* ---------- State ---------- */
-let idx=0, money=0, co2=0, score=0, answered=false;
-const $ = id => document.getElementById(id);
-
-function startGame(){
-  idx=0; money=0; co2=0; score=0; answered=false;
-  updateHUD();
-  $("screen-title").classList.add("hidden");
-  $("screen-result").classList.add("hidden");
-  $("screen-game").classList.remove("hidden");
-  renderQuestion();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function renderQuestion(){
-  answered=false;
-  const item = QUESTIONS[idx];
-  $("stage").setAttribute("data-zone", item.zone);
-
-  $("zoneTag").className = "zone-tag "+item.zone;
-  $("zoneTag").textContent = item.zoneLabel;
-  $("scenario").textContent = "“"+item.scenario+"”";
-  $("question").textContent = item.q;
-
-  const total = QUESTIONS.length;
-  $("qcount").textContent = String(idx+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");
-  $("bar").style.width = ((idx+1)/total*100)+"%";
-
-  const letters = ["A","B","C","D","E"];
-  const opts = $("options");
-  opts.innerHTML = "";
-  item.options.forEach((o,i)=>{
-    const b = document.createElement("button");
-    b.className = "opt";
-    b.innerHTML = '<span class="mark">'+letters[i]+'</span><span>'+o.t+'</span>';
-    b.onclick = ()=>choose(i,b);
-    opts.appendChild(b);
-  });
-
-  const fb = $("feedback");
-  fb.className = "feedback";
-  fb.classList.remove("show");
-}
-
-function choose(i, btn){
-  if(answered) return;
-  answered = true;
-  const item = QUESTIONS[idx];
-  const correct = item.options[i].correct;
-  const allOpts = document.querySelectorAll("#options .opt");
-
-  allOpts.forEach((el,k)=>{
-    el.classList.add("locked");
-    if(item.options[k].correct) el.classList.add("correct");
-    else if(k===i) el.classList.add("wrong");
-    else el.classList.add("dim");
-  });
-
-  const fb = $("feedback");
-  if(correct){
-    score++;
-    money += item.money; co2 += item.co2;
-    fb.classList.add("ok");
-    $("fbHead").textContent = "✓ "+(item.okHead||"Correct!");
-  }else{
-    // half credit on savings is lost; still show learning
-    fb.classList.add("no");
-    $("fbHead").textContent = "✗ Not the best choice";
-    // find correct option text for clarity
-    const right = item.options.find(o=>o.correct).t;
-    $("fbBody").dataset.right = right;
-  }
-  // body text
-  let body = item.expl;
-  if(!correct){
-    const right = item.options.find(o=>o.correct).t;
-    body = "The best answer was: “"+right+"”.  "+item.expl;
-  }
-  $("fbBody").textContent = body;
-
-  // source tag
-  const map = {
-    e4f:["Energy4Farming","🌾"],
-    elit:["E‑Lit Adults","⚡"],
-    both:["Energy4Farming + E‑Lit Adults","🤝"],
-    ext:["EU / external source","🇪🇺"]
-  };
-  const m = map[item.srcType]||map.ext;
-  $("fbSrc").innerHTML = m[1]+" Source: <b>"+ (item.src||m[0]) +"</b>";
-
-  fb.classList.add("show");
-  updateHUD(correct);
-
-  // last question -> change button label
-  $("nextBtn").textContent = (idx === QUESTIONS.length-1) ? "See your result →" : "Next →";
-}
-
-function updateHUD(animate){
-  $("hud-money").textContent = money;
-  $("hud-co2").textContent = co2;
-  $("hud-score").textContent = score;
-}
-
-function nextQuestion(){
-  if(idx < QUESTIONS.length-1){
-    idx++;
-    renderQuestion();
-    $("screen-game").scrollIntoView({behavior:"smooth",block:"start"});
-  }else{
-    showResult();
-  }
-}
-
-function showResult(){
-  $("bar").style.width = "100%";
-  $("screen-game").classList.add("hidden");
-  $("screen-result").classList.remove("hidden");
-  $("stage").setAttribute("data-zone","community");
-
-  const total = QUESTIONS.length;
-  $("fMoney").textContent = money;
-  $("fCo2").textContent = co2;
-  $("fScore").textContent = score+"/"+total;
-
-  let badge, title, rank, summary;
-  const pct = score/total;
-  if(pct>=0.9){
-    badge="🏆"; title="Rural Energy Champion!"; rank="Master of home & farm energy";
-    summary="Outstanding! You cut bills at home AND powered the farm with the sun, wind and the earth. Your village should make you energy advisor.";
-  }else if(pct>=0.66){
-    badge="🌻"; title="Energy-Smart Farmer"; rank="Strong, growing energy literacy";
-    summary="Great work! You've grasped the core ideas from both projects. Tighten up a few details and you'll be saving even more energy and money.";
-  }else if(pct>=0.4){
-    badge="🌱"; title="Sprouting Saver"; rank="On your way";
-    summary="A solid start. You've planted the seeds of energy literacy — revisit the trickier questions to see how home efficiency and farm renewables work together.";
-  }else{
-    badge="🔌"; title="Apprentice"; rank="Plenty to discover";
-    summary="Every expert starts somewhere. Replay the quest and read the feedback — saving energy in rural areas is a skill anyone can learn.";
-  }
-  $("badge").textContent = badge;
-  $("resTitle").textContent = title;
-  $("resRank").textContent = rank;
-  $("resSummary").textContent = summary;
-
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function restart(){
-  $("screen-result").classList.add("hidden");
-  $("stage").setAttribute("data-zone","title");
-  $("screen-title").classList.remove("hidden");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
+const SOURCES = {"E4F": {"label": "Energy4Farming · renewable energy for agriculture", "url": "https://energy4farming.uni-eszterhazy.hu/en", "icon": "🌾"}, "ELIT": {"label": "E-Lit Adults · energy literacy and energy poverty", "url": "https://www.elitadults.eu/", "icon": "⚡"}, "IEA_EFF": {"label": "IEA · Energy efficiency: the first fuel", "url": "https://www.iea.org/energy-system/energy-efficiency-and-demand/energy-efficiency", "icon": "📘"}, "IEA_BLD": {"label": "IEA · Buildings and energy demand", "url": "https://www.iea.org/energy-system/buildings", "icon": "🏠"}, "EU_BLD": {"label": "European Commission · Energy performance of buildings", "url": "https://energy.ec.europa.eu/topics/energy-efficiency/energy-performance-buildings_en", "icon": "🇪🇺"}, "EU_EPC": {"label": "European Commission · One-stop shops, renovation and EPCs", "url": "https://energy.ec.europa.eu/topics/energy-efficiency/energy-performance-buildings/energy-performance-buildings-directive/one-stop-shops-renovation-and-energy-efficiency_en", "icon": "🇪🇺"}, "EU_POV": {"label": "European Commission · Energy poverty", "url": "https://energy.ec.europa.eu/topics/markets-and-consumers/energy-consumers-and-prosumers/energy-poverty_en", "icon": "🇪🇺"}, "EUROSTAT": {"label": "Eurostat · 9.2% unable to keep homes adequately warm in 2024", "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20260202-2", "icon": "📊"}, "EU_SOLAR": {"label": "European Commission · Solar energy", "url": "https://energy.ec.europa.eu/topics/renewable-energy/solar-energy_en", "icon": "☀️"}, "EU_BIOM": {"label": "European Commission · Biomethane from organic waste", "url": "https://energy.ec.europa.eu/topics/renewable-energy/bioenergy/biomethane_en", "icon": "♻️"}, "EU_COMM": {"label": "European Commission · Energy communities", "url": "https://energy.ec.europa.eu/topics/markets-and-consumers/energy-consumers-and-prosumers/energy-communities_en", "icon": "🤝"}, "EU_CAP": {"label": "European Commission · CAP and bioenergy", "url": "https://agriculture.ec.europa.eu/cap-my-country/sustainability/economic-sustainability/bioeconomy/cap-and-bioenergy_en", "icon": "🌱"}};
+const CHAPTERS = [{"id": "home", "n": 1, "season": "WINTER", "title": "The Farmhouse Under Pressure", "short": "Farmhouse", "emoji": "🏠", "strap": "Seal the leaks. Read the bills. Protect the people.", "story": "A cold front has reached Riverstone Valley. The farmhouse is draughty, the bills are climbing and an elderly neighbour has stopped heating two rooms to save money. Before investing in machines, you must make the home safer, warmer and easier to understand.", "image": "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1800", "credit": "Farmhouse photograph · Pexels", "creditUrl": "https://www.pexels.com/photo/house-surrounded-by-trees-259588/"}, {"id": "farm", "n": 2, "season": "SPRING", "title": "The Working Farm", "short": "Working farm", "emoji": "☀️", "strap": "Match renewable production to real agricultural needs.", "story": "The weather clears and the fields come back to life. The farm must reduce diesel and electricity costs without wasting land or buying equipment blindly. Your task is to design a practical efficiency and renewable-energy plan around roofs, pumps, loads and local resources.", "image": "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1800&q=85", "credit": "Solar panels photograph · American Public Power Association / Unsplash", "creditUrl": "https://unsplash.com/photos/solar-panels-on-green-field-XGAZzyLzn18"}, {"id": "barn", "n": 3, "season": "SUMMER", "title": "The Circular Barn & Greenhouses", "short": "Circular barn", "emoji": "♻️", "strap": "Turn residues into resources without creating new problems.", "story": "Summer brings heat, irrigation demand and a backlog of manure and crop residues. The greenhouse manager asks for steady heat. The cooperative wants a circular solution, but shortcuts could cause pollution, methane leaks or bad investments. You must connect feedstocks, technologies and end uses carefully.", "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Biogas_plant_%28Costa_di_Rovigo%29.jpg", "credit": "Biogas plant (Costa di Rovigo) · Threecharlie / Wikimedia Commons", "creditUrl": "https://commons.wikimedia.org/wiki/File:Biogas_plant_(Costa_di_Rovigo).jpg"}, {"id": "village", "n": 4, "season": "AUTUMN", "title": "The Village Energy Assembly", "short": "Village assembly", "emoji": "🤝", "strap": "Build a fair local plan that survives beyond one season.", "story": "Harvest is almost over. The village hall is full: farmers, families, the school, small businesses and vulnerable residents all want a say. Your final mission is to turn scattered improvements into a transparent community plan: efficient first, renewable where appropriate, inclusive by design and monitored over time.", "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Wind_turbines_and_farmland_-_geograph.org.uk_-_8204113.jpg", "credit": "Wind turbines and farmland · Mat Fascione / Wikimedia Commons · CC BY-SA 2.0", "creditUrl": "https://commons.wikimedia.org/wiki/File:Wind_turbines_and_farmland_-_geograph.org.uk_-_8204113.jpg"}];
+const QUESTIONS = [{"chapter": "home", "scene": "The first heating bill lands on the kitchen table. It is far higher than last winter.", "q": "What should you do before ordering expensive equipment?", "options": ["Replace every appliance immediately", "Carry out an energy audit and identify the main losses", "Install solar panels without checking consumption", "Heat every room to the same temperature"], "answer": 1, "explanation": "Start with evidence. An audit or careful monitoring helps identify whether the priority is the building envelope, heating system, controls or appliances. Efficiency is the 'first fuel': the energy you avoid using.", "source": "IEA_EFF", "gain": {"budget": 45, "resilience": 25, "climate": 20, "trust": 10}}, {"chapter": "home", "scene": "Cold air is entering around the old doors and attic hatch. The budget is limited this month.", "q": "Which first action is the most proportionate?", "options": ["Seal draughts and inspect roof insulation", "Buy decorative curtains only", "Increase the thermostat permanently", "Leave internal doors open all day"], "answer": 0, "explanation": "Low-cost draught-proofing and targeted insulation checks can reduce avoidable heat loss quickly. They do not replace a full renovation, but they are a sensible first step.", "source": "ELIT", "gain": {"budget": 35, "resilience": 20, "climate": 18, "trust": 8}}, {"chapter": "home", "scene": "The family uses only the kitchen, living room and two bedrooms during winter evenings.", "q": "Which heating strategy is generally the most energy-aware?", "options": ["Keep every room at maximum temperature", "Heat occupied rooms appropriately and use controls or zoning", "Turn heating off regardless of health needs", "Open windows while the heating runs"], "answer": 1, "explanation": "Controls and zoning help match heating to real needs. Energy saving should not mean unsafe indoor temperatures, especially for vulnerable people.", "source": "EU_POV", "gain": {"budget": 35, "resilience": 22, "climate": 18, "trust": 12}}, {"chapter": "home", "scene": "A neighbour says that looking at the electricity bill once a year is enough.", "q": "What would improve household energy literacy?", "options": ["Track consumption patterns and compare periods", "Ignore kilowatt-hours and look only at the logo", "Choose the most colourful invoice", "Use estimates instead of real readings whenever possible"], "answer": 0, "explanation": "Monitoring real consumption makes patterns visible: unusual peaks, seasonal changes and the effect of behavioural or technical measures.", "source": "ELIT", "gain": {"budget": 30, "resilience": 15, "climate": 12, "trust": 10}}, {"chapter": "home", "scene": "At the village shop, someone argues that energy poverty is only an urban issue.", "q": "Which response is the most accurate?", "options": ["Correct: rural households are always protected", "Incorrect: energy poverty can affect rural and urban households, especially vulnerable groups", "Correct: only renters can be affected", "Incorrect: energy poverty concerns businesses only"], "answer": 1, "explanation": "Energy poverty is not limited to cities. Rural homes may face older buildings, higher heating needs, fewer services and limited renovation capacity. In 2024, 9.2% of people in the EU could not afford to keep their homes adequately warm.", "source": "EUROSTAT", "gain": {"budget": 25, "resilience": 20, "climate": 10, "trust": 22}}, {"chapter": "home", "scene": "You are comparing two renovation proposals for the farmhouse.", "q": "Which document is designed to communicate a building's energy performance?", "options": ["A restaurant inspection", "An Energy Performance Certificate (EPC)", "A land registry sketch only", "A weather forecast"], "answer": 1, "explanation": "An EPC is an information tool that rates the energy performance of a building. It supports better-informed renovation, sale and rental decisions.", "source": "EU_EPC", "gain": {"budget": 30, "resilience": 20, "climate": 12, "trust": 10}}, {"chapter": "home", "scene": "After sealing every crack, condensation appears in a bedroom corner.", "q": "What is the correct lesson?", "options": ["Ventilation no longer matters after insulation", "Energy renovation must be combined with appropriate ventilation and moisture control", "The only solution is to heat the room to 30°C", "Remove all insulation immediately"], "answer": 1, "explanation": "A healthy renovation balances insulation, airtightness and ventilation. Energy performance and indoor air quality must be managed together.", "source": "EU_BLD", "gain": {"budget": 25, "resilience": 25, "climate": 15, "trust": 10}}, {"chapter": "home", "scene": "The old freezer in the utility room is running constantly.", "q": "How should you assess whether replacement is worthwhile?", "options": ["Compare purchase price only", "Compare energy use, condition, size needs and lifetime cost", "Choose the largest model available", "Replace it only because the colour is outdated"], "answer": 1, "explanation": "Energy-related financial literacy means looking beyond the sticker price. Real consumption, need, efficiency and lifetime cost should guide the decision.", "source": "ELIT", "gain": {"budget": 40, "resilience": 15, "climate": 16, "trust": 8}}, {"chapter": "home", "scene": "Two electricity offers use different price structures.", "q": "Which comparison is the most useful?", "options": ["The provider's font style", "The expected annual cost based on your consumption profile, including fixed and variable elements", "The number of pages in the contract", "The first promotional slogan only"], "answer": 1, "explanation": "A household needs to understand both consumption and tariff structure. Financial literacy reduces the risk of decisions based on a single headline figure.", "source": "ELIT", "gain": {"budget": 45, "resilience": 12, "climate": 8, "trust": 12}}, {"chapter": "home", "scene": "The farmhouse needs major renovation, but funds are limited.", "q": "Which sequence is generally the most sensible?", "options": ["Prioritise the main losses, assess financing and plan staged improvements", "Install random equipment without diagnosis", "Postpone all action indefinitely", "Renovate only the least-used room because it is easiest"], "answer": 0, "explanation": "A staged renovation plan starts from the largest losses and realistic financing options. The EU Renovation Wave and building policy emphasise better-performing building stock and access to renovation support.", "source": "EU_BLD", "gain": {"budget": 42, "resilience": 22, "climate": 18, "trust": 10}}, {"chapter": "home", "scene": "The village council wants residents to understand grants and renovation support.", "q": "Which service would be most helpful?", "options": ["A one-stop advice point explaining measures, finance and next steps", "A notice saying 'search online'", "A competition for the highest bill", "A ban on asking technical questions"], "answer": 0, "explanation": "One-stop shops can help households navigate renovation advice, financing and practical steps. Clear guidance is especially important for people with limited time or technical confidence.", "source": "EU_EPC", "gain": {"budget": 30, "resilience": 18, "climate": 10, "trust": 24}}, {"chapter": "home", "scene": "A storm is forecast. An older resident depends on electric heating and lives alone.", "q": "What should the village include in its winter resilience plan?", "options": ["A contact list, welfare checks and safe backup arrangements for vulnerable residents", "A social-media post only", "A rule that every resident manages alone", "A plan focused only on street decorations"], "answer": 0, "explanation": "Energy resilience is social as well as technical. A local plan should identify vulnerable residents, communication channels and safe emergency support.", "source": "EU_POV", "gain": {"budget": 20, "resilience": 30, "climate": 8, "trust": 30}}, {"chapter": "farm", "scene": "Spring sunlight returns and the farm is planning a new storage building.", "q": "How can passive solar design contribute before any equipment is installed?", "options": ["Use orientation, glazing and shading to manage seasonal heat gains", "Place windows randomly", "Ignore summer overheating", "Rely on artificial lighting in every case"], "answer": 0, "explanation": "Passive design uses orientation and shading to reduce unnecessary heating and cooling demand. It is a design decision, not a gadget.", "source": "E4F", "gain": {"budget": 40, "resilience": 20, "climate": 24, "trust": 8}}, {"chapter": "farm", "scene": "The barn roof appears suitable for photovoltaic panels.", "q": "What should be checked before installation?", "options": ["Structural suitability, shading, connection options and the farm's demand profile", "Only the colour of the roof", "Whether panels can cover every window", "Nothing: all roofs perform identically"], "answer": 0, "explanation": "A good PV project starts with the roof, local constraints and the farm's real electricity demand. Solar is flexible, but design still matters.", "source": "EU_SOLAR", "gain": {"budget": 40, "resilience": 20, "climate": 32, "trust": 8}}, {"chapter": "farm", "scene": "The installer asks about orientation in the northern hemisphere.", "q": "Which general principle is correct?", "options": ["Panels should normally face south or be designed around the local solar resource", "Panels should always face north", "Orientation never affects output", "Panels must be installed vertically in every location"], "answer": 0, "explanation": "In the northern hemisphere, south-facing exposure is a common reference point, while the final design depends on latitude, roof shape, shading and the intended production profile.", "source": "E4F", "gain": {"budget": 35, "resilience": 18, "climate": 28, "trust": 6}}, {"chapter": "farm", "scene": "A proposal suggests covering the most productive field with panels without studying agricultural use.", "q": "Which response is best?", "options": ["Approve immediately because all solar projects are identical", "Assess roofs, degraded areas and carefully designed agrivoltaic options before using productive land", "Reject solar energy entirely", "Remove crops without consulting anyone"], "answer": 1, "explanation": "Solar deployment should be planned. Rooftops and suitable sites can reduce land-use conflict, while agrivoltaic solutions need careful agricultural and technical design.", "source": "EU_SOLAR", "gain": {"budget": 38, "resilience": 20, "climate": 30, "trust": 14}}, {"chapter": "farm", "scene": "A windy hill looks promising for a small turbine.", "q": "What is the next responsible step?", "options": ["Buy a turbine based on one windy afternoon", "Measure the local wind resource and review permitting, grid and environmental constraints", "Assume wind conditions are the same everywhere", "Install the tallest available turbine without a plan"], "answer": 1, "explanation": "Wind projects must be based on site-specific evidence. Visual impressions are not a substitute for resource assessment and local planning.", "source": "E4F", "gain": {"budget": 32, "resilience": 22, "climate": 28, "trust": 12}}, {"chapter": "farm", "scene": "The farm wants a steadier renewable supply across seasons.", "q": "Why can solar and wind work well together in a hybrid system?", "options": ["They can have complementary production patterns", "Wind turbines create sunlight", "Solar panels eliminate all maintenance", "Using two sources always doubles consumption"], "answer": 0, "explanation": "Hybrid systems can reduce dependence on a single production pattern. The value comes from matching resources, loads, storage and grid conditions.", "source": "E4F", "gain": {"budget": 42, "resilience": 24, "climate": 30, "trust": 8}}, {"chapter": "farm", "scene": "The farm is considering a battery but cannot power everything during an outage.", "q": "What should be prioritised?", "options": ["Critical loads such as controls, essential refrigeration and safety systems", "Decorative lighting only", "Every non-essential device at the same time", "The loudest machine regardless of purpose"], "answer": 0, "explanation": "Storage is most useful when it is designed around critical loads, demand peaks and the farm's operating priorities.", "source": "E4F", "gain": {"budget": 35, "resilience": 28, "climate": 22, "trust": 10}}, {"chapter": "farm", "scene": "Electricity use spikes during irrigation days.", "q": "What is the best starting point?", "options": ["Monitor pumps and irrigation schedules to identify avoidable peaks", "Buy more diesel immediately", "Run pumps at maximum speed regardless of need", "Stop measuring because the bill is complicated"], "answer": 0, "explanation": "Efficiency begins with load knowledge. Monitoring can reveal whether timing, sizing, maintenance or controls are causing unnecessary demand.", "source": "IEA_EFF", "gain": {"budget": 40, "resilience": 18, "climate": 20, "trust": 8}}, {"chapter": "farm", "scene": "A pump runs at full output even when water demand is lower.", "q": "Which improvement is most plausible?", "options": ["Match operation to demand through appropriate controls and efficient equipment", "Keep full output because waste is unavoidable", "Irrigate at random", "Replace water management with larger bills"], "answer": 0, "explanation": "Efficient operation means matching equipment output to actual needs. Controls, maintenance and correct sizing can reduce waste.", "source": "IEA_EFF", "gain": {"budget": 38, "resilience": 20, "climate": 20, "trust": 6}}, {"chapter": "farm", "scene": "The dairy needs hot water every day.", "q": "Which question should guide a solar-thermal assessment?", "options": ["Is there a regular hot-water demand that the system can use?", "Does the farm have a red roof?", "Can the system operate without any maintenance forever?", "Will it replace every energy use on the farm?"], "answer": 0, "explanation": "Renewable systems work best when matched to a real load. Regular hot-water demand can make solar thermal worth assessing.", "source": "E4F", "gain": {"budget": 35, "resilience": 16, "climate": 22, "trust": 6}}, {"chapter": "farm", "scene": "Dust and leaves are accumulating around the PV installation.", "q": "What should the maintenance plan include?", "options": ["Safe inspection, performance monitoring and maintenance according to manufacturer guidance", "Ignoring output changes", "Cleaning electrical equipment with unsafe methods", "Waiting until total failure"], "answer": 0, "explanation": "Renewable energy still requires maintenance. Safe inspection and performance monitoring help identify faults early.", "source": "E4F", "gain": {"budget": 26, "resilience": 18, "climate": 18, "trust": 8}}, {"chapter": "farm", "scene": "Three suppliers propose different energy systems.", "q": "Which comparison is the strongest?", "options": ["Demand profile, expected production, maintenance, financing, permits and realistic payback", "Logo size and brochure thickness", "The most expensive system automatically", "The proposal with the longest list of buzzwords"], "answer": 0, "explanation": "Sound investment decisions compare technical fit, costs, maintenance, permissions and realistic benefits. A farm energy plan should be evidence-based.", "source": "ELIT", "gain": {"budget": 46, "resilience": 22, "climate": 20, "trust": 10}}, {"chapter": "barn", "scene": "The greenhouse manager asks for reliable winter heat.", "q": "When is geothermal energy worth exploring?", "options": ["When local geological resources and technical conditions are suitable", "In every location without assessment", "Only when the greenhouse is unused", "Only as a decorative feature"], "answer": 0, "explanation": "Geothermal solutions depend strongly on local conditions. Where suitable, they can provide steady heat, but resource assessment and regulation matter.", "source": "E4F", "gain": {"budget": 35, "resilience": 24, "climate": 28, "trust": 8}}, {"chapter": "barn", "scene": "A thermal-water system is being designed for the greenhouse.", "q": "Which practice may be important after heat extraction?", "options": ["Manage and, where required, reinject cooled water responsibly", "Discharge water anywhere without checking rules", "Ignore the reservoir", "Use drinking-water pipes without design review"], "answer": 0, "explanation": "Geothermal systems need responsible water management. Local rules and reservoir sustainability must be considered from the start.", "source": "E4F", "gain": {"budget": 30, "resilience": 24, "climate": 20, "trust": 10}}, {"chapter": "barn", "scene": "Manure and suitable crop residues are accumulating near the barn.", "q": "Which circular-energy option should be assessed?", "options": ["Anaerobic digestion for biogas or biomethane production", "Open dumping", "Burning wet waste in an uncontrolled fire", "Sending every residue to landfill automatically"], "answer": 0, "explanation": "Organic waste such as manure, food scraps or damaged crops can be used to produce biomethane. Controlled digestion can turn a waste-management issue into an energy opportunity.", "source": "EU_BIOM", "gain": {"budget": 42, "resilience": 24, "climate": 36, "trust": 12}}, {"chapter": "barn", "scene": "A visitor asks what anaerobic digestion actually means.", "q": "Which explanation is correct?", "options": ["Organic matter is broken down in a controlled oxygen-free process that produces biogas", "Residues are left uncovered to release methane", "Solar panels digest manure", "Wind turbines turn slurry into fuel"], "answer": 0, "explanation": "Anaerobic digestion takes place in a controlled, sealed environment. Capturing biogas is very different from allowing methane to escape uncontrolled.", "source": "EU_BIOM", "gain": {"budget": 35, "resilience": 20, "climate": 32, "trust": 8}}, {"chapter": "barn", "scene": "The cooperative is comparing raw biogas and biomethane.", "q": "What is biomethane?", "options": ["Biogas upgraded to a quality suitable for specific end uses such as grid injection or transport, subject to rules", "A brand name for coal", "A liquid fertiliser only", "Electricity imported from another country"], "answer": 0, "explanation": "Biomethane is produced by upgrading biogas. The appropriate use depends on infrastructure, quality standards and local conditions.", "source": "EU_BIOM", "gain": {"budget": 38, "resilience": 18, "climate": 30, "trust": 8}}, {"chapter": "barn", "scene": "The digester produces a nutrient-rich digestate.", "q": "How should it be managed?", "options": ["Use a nutrient-management plan and comply with applicable agricultural and environmental rules", "Spread it anywhere in unlimited quantities", "Treat it as automatically harmless", "Mix it with drinking water"], "answer": 0, "explanation": "Circularity does not remove the need for management. Digestate can be valuable, but application must follow nutrient needs and applicable rules.", "source": "EU_BIOM", "gain": {"budget": 30, "resilience": 24, "climate": 22, "trust": 12}}, {"chapter": "barn", "scene": "Someone proposes burning every agricultural residue available.", "q": "What is the better principle?", "options": ["Assess feedstock suitability, moisture, emissions and higher-value uses before choosing energy recovery", "Burn everything because all biomass is identical", "Ignore air quality", "Use food crops automatically even when residues are available"], "answer": 0, "explanation": "Bioenergy must be planned carefully. Not every residue is suitable, and energy recovery should be considered within a broader circular-use hierarchy.", "source": "EU_CAP", "gain": {"budget": 32, "resilience": 20, "climate": 24, "trust": 12}}, {"chapter": "barn", "scene": "The farm produces by-products that may have material or feed uses.", "q": "Which circular-economy approach is strongest?", "options": ["Consider prevention and higher-value uses before energy recovery where appropriate", "Send all materials directly to disposal", "Assume energy is always the only useful output", "Ignore local markets"], "answer": 0, "explanation": "A circular strategy looks for the most appropriate use of each stream. Energy can be valuable, but it is one option within a wider resource plan.", "source": "EU_CAP", "gain": {"budget": 34, "resilience": 18, "climate": 22, "trust": 14}}, {"chapter": "barn", "scene": "The digester generates heat as well as gas.", "q": "How can the project improve overall efficiency?", "options": ["Look for useful heat demand, such as greenhouse heating or process needs", "Release all heat unused", "Cool the digester as much as possible", "Build the plant far from every possible heat user without analysis"], "answer": 0, "explanation": "Energy projects are stronger when useful outputs are matched to real demand. Heat recovery can improve the value of a biogas or combined-heat-and-power system.", "source": "E4F", "gain": {"budget": 40, "resilience": 22, "climate": 32, "trust": 8}}, {"chapter": "barn", "scene": "A methane detector shows an unusual reading near a connection.", "q": "What is the correct response?", "options": ["Stop, investigate safely and repair the leak under the proper procedure", "Ignore it because biogas is renewable", "Add fragrance to hide the smell", "Increase pressure to compensate"], "answer": 0, "explanation": "Renewable does not mean risk-free. Methane leakage undermines climate benefits and can create safety hazards. Monitoring and maintenance are essential.", "source": "EU_BIOM", "gain": {"budget": 22, "resilience": 30, "climate": 32, "trust": 12}}, {"chapter": "barn", "scene": "A neighbouring food processor offers residues for co-digestion.", "q": "What should happen before accepting them?", "options": ["Check composition, contamination risks, process compatibility, logistics and rules", "Accept every load without records", "Mix unknown materials first and test later", "Store residues in an open pile indefinitely"], "answer": 0, "explanation": "Feedstock quality and compatibility affect safety, process performance and digestate management. Traceability is part of a serious bioenergy plan.", "source": "EU_BIOM", "gain": {"budget": 35, "resilience": 24, "climate": 26, "trust": 12}}, {"chapter": "barn", "scene": "The cooperative is ready to approve its circular-energy plan.", "q": "Which proposal is the most complete?", "options": ["Map feedstocks, choose suitable technology, monitor leaks, use heat, manage digestate and track results", "Buy a digester without a feedstock survey", "Focus only on the launch event", "Treat all residues as interchangeable"], "answer": 0, "explanation": "A circular-energy investment is a system, not a single machine. Feedstocks, outputs, safety, environment, economics and monitoring must align.", "source": "EU_BIOM", "gain": {"budget": 48, "resilience": 28, "climate": 34, "trust": 14}}, {"chapter": "village", "scene": "At the village hall, residents ask what an energy community is.", "q": "Which definition is the most accurate?", "options": ["A citizen-driven arrangement that can collectively produce, use, share or manage energy", "A private bill sent to every household", "A battery owned by nobody", "A ban on local participation"], "answer": 0, "explanation": "Energy communities organise collective and citizen-driven action. Their value is not only technical: participation, local benefits and governance matter.", "source": "EU_COMM", "gain": {"budget": 30, "resilience": 20, "climate": 24, "trust": 30}}, {"chapter": "village", "scene": "Several residents are interested, but they distrust opaque decision-making.", "q": "Which governance rule is most important?", "options": ["Clear membership rules, transparent decisions and understandable benefit-sharing", "Keep contracts secret", "Let one supplier decide everything forever", "Exclude questions from residents"], "answer": 0, "explanation": "Community projects depend on trust. Transparent governance and clear communication help members understand risks, costs and benefits.", "source": "EU_COMM", "gain": {"budget": 24, "resilience": 18, "climate": 14, "trust": 34}}, {"chapter": "village", "scene": "A low-income household cannot afford an upfront contribution.", "q": "How should the community respond?", "options": ["Explore inclusive models and support so vulnerable households are not excluded", "Exclude the household automatically", "Hide the issue from the assembly", "Charge the household more because it has fewer resources"], "answer": 0, "explanation": "The clean-energy transition should be inclusive. EU policy explicitly connects energy communities with support for vulnerable households and micro-enterprises.", "source": "EU_COMM", "gain": {"budget": 18, "resilience": 20, "climate": 16, "trust": 36}}, {"chapter": "village", "scene": "The school roof is sunny, but several homes have shaded roofs.", "q": "Which approach is worth assessing?", "options": ["A shared project using suitable roofs and a clear local benefit model", "Install panels only on the shadiest roofs", "Ignore public buildings", "Give up because every roof is different"], "answer": 0, "explanation": "Collective approaches can help communities use the best local sites rather than requiring every household to have an ideal roof.", "source": "EU_COMM", "gain": {"budget": 34, "resilience": 22, "climate": 30, "trust": 22}}, {"chapter": "village", "scene": "Solar production is high at midday, while some loads run later.", "q": "What can improve local use of renewable electricity?", "options": ["Shift flexible loads where practical and assess storage or smart controls", "Run every flexible load at the least suitable time", "Ignore production patterns", "Ban monitoring"], "answer": 0, "explanation": "Demand-side flexibility means adapting some consumption to production and system needs. Not every load can move, but some can.", "source": "IEA_EFF", "gain": {"budget": 32, "resilience": 22, "climate": 24, "trust": 16}}, {"chapter": "village", "scene": "Residents agree to share meter data for planning.", "q": "Which principle should guide the process?", "options": ["Use only necessary data, explain the purpose and protect privacy", "Publish every household detail publicly", "Collect data without consent or explanation", "Store passwords in a public spreadsheet"], "answer": 0, "explanation": "Energy literacy includes understanding data. Community planning should use proportionate, secure and transparent data practices.", "source": "ELIT", "gain": {"budget": 22, "resilience": 16, "climate": 12, "trust": 32}}, {"chapter": "village", "scene": "Many residents feel overwhelmed by renovation choices and support schemes.", "q": "Which local response is most useful?", "options": ["Create an advice point or referral pathway for audits, finance and practical steps", "Distribute a list of acronyms only", "Tell residents to solve everything alone", "Recommend one product to everyone"], "answer": 0, "explanation": "Accessible advice can turn awareness into action. One-stop approaches help households understand renovation pathways and financing options.", "source": "EU_EPC", "gain": {"budget": 26, "resilience": 18, "climate": 14, "trust": 32}}, {"chapter": "village", "scene": "The municipality wants a visible first project.", "q": "Which option best combines learning and practical value?", "options": ["Improve a public building and communicate the measured results clearly", "Install equipment without monitoring", "Choose a hidden project with no explanation", "Focus only on a ceremonial ribbon-cutting"], "answer": 0, "explanation": "A demonstrator is useful when it combines real performance improvements with transparent learning for residents and local stakeholders.", "source": "EU_BLD", "gain": {"budget": 34, "resilience": 20, "climate": 22, "trust": 26}}, {"chapter": "village", "scene": "The cooperative is discussing electric mobility for remote households and farm vehicles.", "q": "What is the best planning principle?", "options": ["Assess real mobility needs, suitable charging locations, grid capacity and inclusion", "Install chargers randomly", "Assume every household has the same travel pattern", "Ignore public transport and shared solutions"], "answer": 0, "explanation": "Rural mobility planning should begin with needs and constraints. Charging infrastructure is one element of a broader accessibility and energy plan.", "source": "EU_COMM", "gain": {"budget": 30, "resilience": 18, "climate": 20, "trust": 20}}, {"chapter": "village", "scene": "Farmers ask whether rural-development policy can support renewable energy and efficiency.", "q": "Which answer is correct?", "options": ["Yes: rural-development policy can support renewable-energy investments and energy efficiency", "No: agriculture and energy policy never overlap", "Only fossil-fuel investments are eligible in principle", "Efficiency is unrelated to rural development"], "answer": 0, "explanation": "EU rural-development policy includes measures that can encourage renewable-energy production or consumption and support energy efficiency.", "source": "EU_CAP", "gain": {"budget": 28, "resilience": 18, "climate": 22, "trust": 24}}, {"chapter": "village", "scene": "A resident asks why the village should connect household action with collective action.", "q": "Which response is strongest?", "options": ["Efficiency, renewable production, informed consumers and collective solutions reinforce each other", "Only one technology matters", "Bills are unrelated to behaviour or buildings", "Local participation slows every transition"], "answer": 0, "explanation": "The energy transition is not a single purchase. It combines efficient buildings, informed choices, renewable production and fair local participation.", "source": "EU_COMM", "gain": {"budget": 28, "resilience": 20, "climate": 20, "trust": 26}}, {"chapter": "village", "scene": "The assembly must approve the final Riverstone Valley plan.", "q": "Which roadmap is the most credible?", "options": ["Measure demand, reduce waste, protect vulnerable residents, deploy suitable renewables, build transparent governance and review results annually", "Buy the most expensive technology first", "Write a slogan and skip monitoring", "Exclude residents to make meetings shorter"], "answer": 0, "explanation": "A durable rural-energy strategy is iterative: understand needs, improve efficiency, choose appropriate renewable solutions, include people and monitor what happens next.", "source": "IEA_EFF", "gain": {"budget": 50, "resilience": 34, "climate": 34, "trust": 40}}];
+let index=0, answered=false, score=0, budget=1000, resilience=0, climate=0, trust=0, chapterIndex=0;
+const $=id=>document.getElementById(id);
+function chapterOf(i){return CHAPTERS.find(c=>c.id===QUESTIONS[i].chapter)}
+function setBackground(ch){$('stage').style.backgroundImage=`linear-gradient(rgba(8,22,17,.25),rgba(8,22,17,.32)),url("${ch.image}")`; $('creditLine').innerHTML=`Image: <a target="_blank" rel="noopener" href="${ch.creditUrl}">${ch.credit}</a>`}
+function renderRoute(target){target.innerHTML=CHAPTERS.map((c,i)=>`<div class="route-node ${i<chapterIndex?'done':i===chapterIndex?'active':'locked'}"><b>${c.emoji} ${c.season}</b>${c.short}</div>`).join('')}
+function beginMission(){ $('titleScreen').classList.add('hidden'); showChapter(0)}
+function showChapter(i){chapterIndex=i;const c=CHAPTERS[i];setBackground(c);$('gameScreen').classList.add('hidden');$('chapterScreen').classList.remove('hidden');$('chapterScreen').innerHTML=`<div class="chapter-cover" style="background-image:url('${c.image}')"><div class="chapter-content"><div class="eyebrow" style="color:#ffd477">CHAPTER ${c.n} · ${c.season}</div><h2>${c.emoji} ${c.title}</h2><p><b>${c.strap}</b></p><p>${c.story}</p><div class="btnrow"><button class="btn gold" onclick="startChapter()">Enter this environment →</button></div></div><div class="photo-credit"><a target="_blank" rel="noopener" href="${c.creditUrl}">${c.credit}</a></div></div>`;window.scrollTo({top:0,behavior:'auto'})}
+function startChapter(){ $('chapterScreen').classList.add('hidden');$('gameScreen').classList.remove('hidden');renderQuestion();window.scrollTo({top:0,behavior:'auto'})}
+function renderQuestion(){answered=false;const item=QUESTIONS[index],c=chapterOf(index);setBackground(c);chapterIndex=CHAPTERS.findIndex(x=>x.id===c.id);renderRoute($('gameRoute'));$('missionLine').textContent=`Chapter ${c.n} · ${c.season} · Decision ${index+1} of ${QUESTIONS.length}`;$('scene').textContent='“'+item.scene+'”';$('question').textContent=item.q;$('options').innerHTML='';['A','B','C','D'].forEach((letter,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="mark">${letter}</span><span>${item.options[i]}</span>`;b.onclick=()=>choose(i);$('options').appendChild(b)});$('feedback').className='feedback';$('progressBar').style.width=((index)/QUESTIONS.length*100)+'%';updateHUD();renderLog()}
+function choose(choice){if(answered)return;answered=true;const item=QUESTIONS[index];const good=choice===item.answer;document.querySelectorAll('.opt').forEach((el,i)=>{el.classList.add('locked');if(i===item.answer)el.classList.add('correct');else if(i===choice)el.classList.add('wrong');else el.classList.add('dim')});if(good){score++;budget+=item.gain.budget;resilience+=item.gain.resilience;climate+=item.gain.climate;trust+=item.gain.trust}else{budget=Math.max(0,budget-15);trust=Math.max(0,trust-4)}const s=SOURCES[item.source];$('feedback').classList.add('show',good?'ok':'no');$('feedbackText').innerHTML=`<b>${good?'✓ Sound decision':'✗ A stronger decision was available'}</b><br>${good?'':`Best option: <b>${item.options[item.answer]}</b><br>`}${item.explanation}`;$('sourceLink').href=s.url;$('sourceLink').textContent=`${s.icon} Source: ${s.label}`;$('nextBtn').textContent=index===QUESTIONS.length-1?'See the year-end report →':((index+1)%12===0?'Complete chapter →':'Next decision →');updateHUD();renderLog()}
+function nextStep(){if(!answered)return;if(index===QUESTIONS.length-1){showResults();return}index++;if(index%12===0){showChapter(Math.floor(index/12))}else renderQuestion()}
+function updateHUD(){$('budgetStat').textContent=budget;$('resStat').textContent=resilience;$('climateStat').textContent=climate;$('trustStat').textContent=trust;$('scoreStat').textContent=`${score}/48`;$('progressBar').style.width=((index+(answered?1:0))/QUESTIONS.length*100)+'%'}
+function renderLog(){const c=chapterOf(index);const chapterStart=Math.floor(index/12)*12;const correctThis=Math.max(0,Math.min(index+(answered?1:0),chapterStart+12)-chapterStart);$('log').innerHTML=`<div class="chapter-mini"><b>${c.emoji} Current chapter</b><br>${c.title}</div><div class="log-item"><strong>Story objective</strong><br>${c.strap}</div><div class="log-item"><strong>Progress</strong><br>${index+1} / 48 decisions reached</div><div class="log-item"><strong>Current literacy</strong><br>${score} sound decisions</div><div class="log-item"><strong>Remember</strong><br>Efficiency first. Technology second. Inclusion throughout.</div>`}
+function showResults(){const pct=score/48;$('gameScreen').classList.add('hidden');$('resultScreen').classList.remove('hidden');$('progressBar').style.width='100%';let badge,title,sub,copy;if(pct>=.9){badge='🏆';title='Rural Energy Champion';sub='Riverstone Valley approves a balanced transition plan.';copy='You consistently connected household efficiency, farm operations, circular bioenergy and inclusive governance. The valley now has a credible roadmap and a culture of informed decision-making.'}else if(pct>=.72){badge='🌻';title='Valley Energy Steward';sub='A strong plan with a few weak points to revisit.';copy='You made most of the critical choices correctly. Replay the year to strengthen the sections where evidence, maintenance or inclusion still need attention.'}else if(pct>=.5){badge='🌱';title='Transition Builder';sub='The foundations exist, but the plan is not resilient yet.';copy='You identified several useful measures, but Riverstone Valley still needs a more coherent sequence: measure, reduce demand, choose appropriate technologies and include residents.'}else{badge='🧭';title='Energy Apprentice';sub='The valley needs another planning round.';copy='Use the linked sources in the feedback and replay the mission. Rural energy transition is a system: homes, farms, resources and people must be considered together.'}$('badge').textContent=badge;$('resultTitle').textContent=title;$('resultSubtitle').textContent=sub;$('resultCopy').textContent=copy;$('resultBudget').textContent=budget;$('resultRes').textContent=resilience;$('resultClimate').textContent=climate;$('resultTrust').textContent=trust;$('sourceList').innerHTML=Object.values(SOURCES).map(s=>`<li>${s.icon} <a target="_blank" rel="noopener" href="${s.url}">${s.label}</a></li>`).join('');window.scrollTo({top:0,behavior:'auto'})}
+function restart(){index=0;answered=false;score=0;budget=1000;resilience=0;climate=0;trust=0;chapterIndex=0;$('resultScreen').classList.add('hidden');$('chapterScreen').classList.add('hidden');$('gameScreen').classList.add('hidden');$('titleScreen').classList.remove('hidden');$('stage').style.backgroundImage='linear-gradient(rgba(8,22,17,.25),rgba(8,22,17,.32)),url("https://images.unsplash.com/photo-1500076656116-558758c991c1?auto=format&fit=crop&w=1400&q=85")';$('creditLine').innerHTML='Title image: rural landscape photograph · Unsplash';renderRoute($('titleRoute'));window.scrollTo({top:0,behavior:'auto'})}
+renderRoute($('titleRoute'));restart();
 </script>
 </body>
 </html>
